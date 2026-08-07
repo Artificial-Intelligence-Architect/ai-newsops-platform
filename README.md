@@ -4,8 +4,8 @@
 > Fine-tuned DistilBERT · FastAPI · Docker Compose · Prometheus · Grafana · Evidently AI · MLflow · Apache Airflow · GitHub Actions CI/CD  
 > *AIA Bloc 4 — MLOps Certification · Frédéric Dreipfelt*
 
-[![CI](https://github.com/Dreipfelt/ai-newsops-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/Dreipfelt/ai-newsops-platform/actions/workflows/ci.yml)
-[![CD](https://github.com/Dreipfelt/ai-newsops-platform/actions/workflows/cd.yml/badge.svg)](https://github.com/Dreipfelt/ai-newsops-platform/actions/workflows/cd.yml)
+[![CI](https://github.com/Artificial-Intelligence-Architect/ai-newsops-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/Artificial-Intelligence-Architect/ai-newsops-platform/actions/workflows/ci.yml)
+[![CD](https://github.com/Artificial-Intelligence-Architect/ai-newsops-platform/actions/workflows/cd.yml/badge.svg)](https://github.com/Artificial-Intelligence-Architect/ai-newsops-platform/actions/workflows/cd.yml)
 [![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688.svg)](https://fastapi.tiangolo.com/)
 [![MLflow](https://img.shields.io/badge/MLflow-3.14-0194E2.svg)](https://mlflow.org/)
@@ -541,7 +541,7 @@ bash scripts/run_load_comparison.sh 30 5 45s
 
 
 ```bash
-git clone https://github.com/Dreipfelt/ai-newsops-platform.git
+git clone https://github.com/Artificial-Intelligence-Architect/ai-newsops-platform.git
 cd ai-newsops-platform
 
 # Option A — full stack
