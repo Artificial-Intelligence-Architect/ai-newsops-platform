@@ -6,7 +6,7 @@ Markdown==3.10.2
 MarkupSafe==3.0.3
 meson==1.9.2
 packaging==26.2
-pillow==12.2.0
+pillow==12.3.0
 setuptools==80.10.2
 svgwrite==1.4.3
 Tree==0.2.4
