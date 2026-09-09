@@ -1,0 +1,73 @@
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.DS_Store
+
+artifacts/
+mlruns/
+outputs/
+logs/
+
+models/*
+!models/distilbert/
+!models/distilbert/**
+
+*.csv
+*.parquet
+*.pkl
+*.joblib
+*.pt
+*.pth
+*.onnx
+*.zip
+*.tar.gz
+.vscode/
+mlflow.db
+reports/
+mlruns/
+mlflow.db
+# Secrets — JAMAIS commiter
+
+# Text files allowed in the repository
+!requirements.txt
+!requirements-dev.txt
+!requirements-ml.txt
+!requirements-monitoring.txt
+!requirements-streamlit.txt
+!README.txt
+
+# Secrets — never commit
+hf-token*
+*token*.txt
+*Token*.txt
+.env
+.env.*
+
+hf-token*
+*token*.txt
+*Token*.txt
+
+ZZZZ_Crap
+models/distilbert/checkpoints/
+.coverage
+models/distilbert/checkpoints/
+dashboard_env/
+docker-compose.yml.bak
+dashboard/streamlit_app.py
+
+# Build artifacts & context files
+*.old
+export_*.js
+export_*.py
+project_context_*.md
+.python-version
+
+# Dossier de travail présentation — jamais versionné
+presentation/
+
+
+# Data — ignorer le contenu mais pas les fichiers DVC
+data/**
+!data/**/.gitignore
+!data/**/*.dvc

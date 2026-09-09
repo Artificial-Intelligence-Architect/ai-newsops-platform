@@ -1,0 +1,148 @@
+name: CI — Test & Build
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  PYTHON_VERSION: "3.10"
+  IMAGE_NAME: newsops-api
+
+jobs:
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install lint tools
+        run: pip install ruff black
+
+      - name: Ruff lint
+        run: ruff check src/ --output-format=github || true
+
+      - name: Black format check
+        run: black --check src/ || true
+
+  test:
+    name: Tests unitaires
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov httpx pytest-asyncio
+          pip install fastapi uvicorn pydantic transformers torch --index-url https://download.pytorch.org/whl/cpu
+          pip install pandas numpy scikit-learn mlflow dvc evidently sentence-transformers
+
+      - name: Create test data
+        run: |
+          mkdir -p data/processed
+          python -c "
+          import json
+          import pandas as pd
+          import numpy as np
+
+          # 13 catégories complètes
+          categories = {
+              '0': 'POLITICS', '1': 'SPORTS', '2': 'ENTERTAINMENT',
+              '3': 'TECH_SCIENCE', '4': 'HEALTH_WELLNESS', '5': 'BUSINESS',
+              '6': 'LIFESTYLE', '7': 'CRIME', '8': 'ARTS_CULTURE',
+              '9': 'MEDIA', '10': 'INTERNATIONAL', '11': 'FAMILY_EDUCATION',
+              '12': 'OTHER'
+          }
+          with open('data/processed/label_mapping.json', 'w') as f:
+              json.dump(categories, f)
+
+          np.random.seed(42)
+          n = 200
+          texts = ['Test article ' + str(i) for i in range(n)]
+          labels = np.random.randint(0, 13, n)
+          df = pd.DataFrame({
+              'text': texts,
+              'label': labels,
+              'headline': texts,
+              'short_description': texts,
+              'category': [categories[str(l)] for l in labels]
+          })
+          df.to_parquet('data/processed/train.parquet')
+          df.to_parquet('data/processed/val.parquet')
+          df.to_parquet('data/processed/test.parquet')
+          print('✅ Données de test créées avec 13 catégories')
+          "
+          ls -la data/processed/
+
+      - name: Run tests
+        run: |
+          pytest tests/ -v --tb=short --cov=src --cov-report=term-missing
+
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false
+
+  build:
+    name: Build Docker image
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write  # ← Permission essentielle
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=sha-
+            type=ref,event=branch
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
+      - name: Login to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & Push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Image digest
+        run: echo "✅ Image pushée → ${{ steps.meta.outputs.tags }}"

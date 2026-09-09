@@ -1,0 +1,139 @@
+{
+  "demo_timestamp": "2026-09-09 14:17:20 UTC",
+  "model_type": "Generic HuggingFace",
+  "is_finetuned": false,
+  "predictions": [
+    {
+      "text": "Senate Approves New Infrastructure Bill The U.S. Senate voted to approve a $1.2 trillion infrastructure bill.",
+      "predicted_category": "entertainment",
+      "confidence": 0.0842,
+      "top_3_predictions": [
+        {
+          "category": "entertainment",
+          "confidence": 0.0842
+        },
+        {
+          "category": "business",
+          "confidence": 0.0842
+        },
+        {
+          "category": "politics",
+          "confidence": 0.0824
+        }
+      ],
+      "latency_ms": 27.4
+    },
+    {
+      "text": "Top 10 Paris Restaurants You Must Try A guide to the best dining experiences in the City of Light.",
+      "predicted_category": "entertainment",
+      "confidence": 0.0904,
+      "top_3_predictions": [
+        {
+          "category": "entertainment",
+          "confidence": 0.0904
+        },
+        {
+          "category": "arts_culture",
+          "confidence": 0.0842
+        },
+        {
+          "category": "business",
+          "confidence": 0.084
+        }
+      ],
+      "latency_ms": 21.5
+    },
+    {
+      "text": "New iPhone 16 Pro Max Released Apple announces its latest flagship with advanced AI capabilities.",
+      "predicted_category": "entertainment",
+      "confidence": 0.0925,
+      "top_3_predictions": [
+        {
+          "category": "entertainment",
+          "confidence": 0.0925
+        },
+        {
+          "category": "business",
+          "confidence": 0.0848
+        },
+        {
+          "category": "politics",
+          "confidence": 0.0836
+        }
+      ],
+      "latency_ms": 20.05
+    },
+    {
+      "text": "Taylor Swift Announces World Tour 2025 Singer announces massive world tour following album release.",
+      "predicted_category": "entertainment",
+      "confidence": 0.0916,
+      "top_3_predictions": [
+        {
+          "category": "entertainment",
+          "confidence": 0.0916
+        },
+        {
+          "category": "politics",
+          "confidence": 0.0873
+        },
+        {
+          "category": "business",
+          "confidence": 0.0815
+        }
+      ],
+      "latency_ms": 19.92
+    },
+    {
+      "text": "Breakthrough in Cancer Research Announced Scientists report promising results in new cancer treatment trial.",
+      "predicted_category": "entertainment",
+      "confidence": 0.0882,
+      "top_3_predictions": [
+        {
+          "category": "entertainment",
+          "confidence": 0.0882
+        },
+        {
+          "category": "politics",
+          "confidence": 0.0857
+        },
+        {
+          "category": "arts_culture",
+          "confidence": 0.083
+        }
+      ],
+      "latency_ms": 19.75
+    }
+  ],
+  "aggregate_metrics": {
+    "mean_latency_ms": 21.72,
+    "p95_latency_ms": 26.22,
+    "demo_accuracy": 0.0
+  },
+  "system_metrics": {
+    "api_latency_p95": 8.5,
+    "api_latency_unit": "ms",
+    "error_rate": 0.0,
+    "error_rate_unit": "%",
+    "request_rate": 145,
+    "request_rate_unit": "req/s",
+    "model_accuracy": 50.0,
+    "accuracy_unit": "%",
+    "f1_macro": 0.45,
+    "drift_status": "STABLE",
+    "uptime": 99.9,
+    "uptime_unit": "%"
+  },
+  "drift_detection": {
+    "drift_detected": false,
+    "drift_status": "STABLE",
+    "drift_score": 0.12,
+    "threshold": 0.3,
+    "feature_drift": {
+      "text_length": 0.05,
+      "vocabulary": 0.08,
+      "category_distribution": 0.15
+    },
+    "recommendation": "\u2705 No drift detected. Model is stable.",
+    "next_check": "2026-07-22 12:00:00 UTC"
+  }
+}

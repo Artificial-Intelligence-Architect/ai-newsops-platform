@@ -1,0 +1,44 @@
+{
+  "model": "distilbert-base-uncased",
+  "fast_mode": true,
+  "epochs_run": 2,
+  "best_val_f1": 0.671,
+  "test_f1_macro": 0.6791,
+  "test_accuracy": 0.7382,
+  "baseline_f1": 0.6515,
+  "delta_f1": 0.0276,
+  "training_minutes": 192.0,
+  "history": {
+    "train_loss": [
+      1.1965564940940507,
+      0.651794677192386
+    ],
+    "val_loss": [
+      0.9157065146649803,
+      0.9012888645868431
+    ],
+    "val_f1": [
+      0.6477791922165353,
+      0.6709730531470097
+    ],
+    "val_acc": [
+      0.7138294474608751,
+      0.7319067390610029
+    ]
+  },
+  "class_names": [
+    "arts_culture",
+    "business",
+    "crime",
+    "entertainment",
+    "family_education",
+    "health_wellness",
+    "international",
+    "lifestyle",
+    "media",
+    "other",
+    "politics",
+    "sports",
+    "tech_science"
+  ]
+}
