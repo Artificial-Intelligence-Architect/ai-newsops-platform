@@ -11,13 +11,16 @@ from pathlib import Path
 from typing import Literal
 
 import yaml
-from pydantic import BaseModel, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 StatutVerification = Literal["confirme", "a_tester", "a_completer", "en_echec"]
 
 
 class Source(BaseModel):
     """Une source de presse (un flux RSS)."""
+
+    # Supprime les espaces parasites en début et fin de texte ("BBC Health ").
+    model_config = ConfigDict(str_strip_whitespace=True)
 
     nom: str
     langue: str  # code ISO 639-1 ("fr", "nl"...) ou "multi"
@@ -72,6 +75,13 @@ class Registre(BaseModel):
 
     @model_validator(mode="after")
     def pas_de_doublons(self) -> Registre:
+        noms: set[str] = set()
+        for s in self.sources:
+            if s.nom in noms:
+                raise ValueError(
+                    f"Nom de source en double dans le registre : {s.nom!r}"
+                )
+            noms.add(s.nom)
         vues: set[str] = set()
         for s in self.sources:
             if s.url is None:

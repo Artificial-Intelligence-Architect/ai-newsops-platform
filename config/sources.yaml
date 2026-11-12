@@ -1,10 +1,12 @@
 # Inventaire des flux RSS pour le projet de traçabilité de la veille santé
 # Statuts :
-#   confirme      : flux lu directement (XML fourni ou validé dans une source fiable)
-#   a_tester      : URL trouvée dans une source tierce, à valider avec feedparser
-#   a_completer   : source identifiée, URL du flux à extraire de la page
-#   en_echec      : URL testée, flux invalide ou vide (bozo True, 0 entrée) ; à réessayer ou remplacer
-# Dernière mise à jour : 2026-10-22
+#   confirme      : flux testé avec src/ingestion/check_feeds.py, au moins une entrée lue
+#   a_tester      : URL trouvée (source tierce, déduction) mais pas encore testée
+#   a_completer   : source identifiée, URL du flux pas encore trouvée
+#   en_echec      : URL testée, erreur HTTP ou 0 entrée ; à remplacer ou réessayer
+# date_verification : date de la dernière revue manuelle de l'entrée.
+# Le résultat détaillé du dernier contrôle est dans data/source_health.json (non versionné).
+# Dernière mise à jour : 2026-11-12
 
 meta:
   projet: traçabilité de la preuve pour la veille santé
@@ -34,8 +36,8 @@ sources:
     type_source: presse_generaliste
     url: https://www.lemonde.fr/en/rss/une.xml
     statut_verification: confirme
-    date_verification: 2026-10-22
-    notes: "Source tierce (feedspot) ; utile pour comparer une traduction anglaise"
+    date_verification: 2026-11-12
+    notes: "Trouvé via feedspot, vérifié avec check_feeds le 2026-11-12 (14 entrées). Utile pour comparer une traduction anglaise"
 
   - nom: Libération (rss-all)
     langue: fr
@@ -71,8 +73,8 @@ sources:
     type_source: presse_generaliste
     url: https://www.lesoir.be/rss2/2/cible_principale
     statut_verification: en_echec
-    date_verification: 2026-10-22
-    notes: "Listé comme actif sur Feeder ; les URL rss2/13 et feedburner sont cassées ou obsolètes"
+    date_verification: 2026-11-12
+    notes: "HTTP 403 (accès refusé au robot) le 2026-11-12. Listé actif sur Feeder ; les URL rss2/13 et feedburner sont cassées ou obsolètes"
 
   - nom: Le Soir (page des services RSS)
     langue: fr
@@ -80,8 +82,8 @@ sources:
     type_source: presse_generaliste
     url: https://www.lesoir.be/services/rss
     statut_verification: a_completer
-    date_verification: null
-    notes: "Page de liste de flux : extraire les URL XML utiles (santé, société) pour le corpus"
+    date_verification: 2026-11-12
+    notes: "Page web (pas un flux) ; HTTP 403 au robot le 2026-11-12. Extraire à la main les URL XML utiles (santé, société)"
 
   - nom: L'Echo (top stories)
     langue: fr
@@ -89,8 +91,8 @@ sources:
     type_source: presse_economique
     url: https://www.lecho.be/rss/top_stories.xml
     statut_verification: en_echec
-    date_verification: 2026-10-22
-    notes: "Testé : bozo True, 0 entrée. Remplacé par les flux entreprises ci-dessous"
+    date_verification: 2026-11-12
+    notes: "HTTP 404 le 2026-11-12 : URL obsolète. Remplacé par les flux thématiques ci-dessous"
 
   - nom: L'Echo (entreprises tech et science)
     langue: fr
@@ -197,8 +199,8 @@ sources:
     type_source: presse_economique
     url: https://services.lesechos.fr/rss/les-echos-tech-medias.xml
     statut_verification: en_echec
-    date_verification: 2026-10-22
-    notes: "Testé : bozo 1, 0 entrée. Les autres flux Les Echos (services.lesechos.fr/rss/...) restent à tester"
+    date_verification: 2026-11-12
+    notes: "HTTP 403 (accès refusé au robot) le 2026-11-12. Les autres flux Les Echos (services.lesechos.fr/rss/...) restent à tester"
 
   - nom: La Libre Belgique
     langue: fr
@@ -206,8 +208,8 @@ sources:
     type_source: presse_generaliste
     url: https://www.lalibre.be/arc/outboundfeeds/rss/?outputType=xml
     statut_verification: confirme
-    date_verification: 2026-10-22
-    notes: "Confirmé via Feeder (statut actif, ~80 publications/jour). Sections disponibles : politique-belge, economie, international, europe, judiciaire, bruxelles"
+    date_verification: 2026-11-12
+    notes: "Vérifié avec check_feeds le 2026-11-12 (100 entrées). Repéré via Feeder (~80 publications/jour). Sections disponibles : politique-belge, economie, international, europe, judiciaire, bruxelles"
 
   - nom: RTBF (Flux RSS)
     langue: fr
@@ -225,8 +227,8 @@ sources:
     type_source: audiovisuel_public
     url: https://feeds.nos.nl/nosnieuwsalgemeen
     statut_verification: confirme
-    date_verification: 2026-10-22
-    notes: "Pattern confirmé pour nosnieuwspolitiek, nosnieuwstech et nossportalgemeen ; URL algemeen déduite du pattern"
+    date_verification: 2026-11-12
+    notes: "URL déduite du pattern feeds.nos.nl, vérifiée avec check_feeds le 2026-11-12 (20 entrées)"
 
   - nom: NOS Nieuws Politiek
     langue: nl
@@ -242,8 +244,8 @@ sources:
     type_source: presse_generaliste
     url: https://www.hln.be/home/rss.xml
     statut_verification: confirme
-    date_verification: 2026-10-22
-    notes: "Source tierce (feedspot) ; à valider"
+    date_verification: 2026-11-12
+    notes: "Trouvé via feedspot, vérifié avec check_feeds le 2026-11-12 (30 entrées)"
 
   # ---------- De Tijd (néerlandais, presse économique belge) ----------
   - nom: De Tijd (politiek België)
@@ -334,8 +336,8 @@ sources:
     type_source: audiovisuel_public
     url: https://www.tagesschau.de/infoservices/alle-meldungen-100~rss2.xml
     statut_verification: confirme
-    date_verification: 2026-10-22
-    notes: "Listé actif sur Feeder"
+    date_verification: 2026-11-12
+    notes: "Repéré via Feeder, vérifié avec check_feeds le 2026-11-12 (40 entrées)"
 
   - nom: tagesschau Gesundheit und Medizin
     langue: de
@@ -380,18 +382,18 @@ sources:
     pays: LU
     type_source: presse_generaliste
     url: https://lequotidien.lu/feed
-    statut_verification: confirme
-    date_verification: 2026-10-22
-    notes: "Source tierce (feedspot)"
+    statut_verification: en_echec
+    date_verification: 2026-11-12
+    notes: "HTTP 404 le 2026-11-12 (URL trouvée via feedspot). La page d'accueil https://lequotidien.lu/ est une page web, pas un flux : chercher le lien RSS dans son code source"
 
   - nom: Luxemburger Wort
     langue: de
     pays: LU
     type_source: presse_generaliste
     url: https://www.wort.lu/rss/
-    statut_verification: a_completer
-    date_verification: null
-    notes: "Page de liste de flux à vérifier : extraire l'URL XML du flux général"
+    statut_verification: confirme
+    date_verification: 2026-11-12
+    notes: "L'URL notée est bien un flux : vérifiée avec check_feeds le 2026-11-12 (50 entrées)"
 
   - nom: Statistiques Luxembourg (STATEC, actualités)
     langue: fr
@@ -410,7 +412,16 @@ sources:
     url: https://feeds.bbci.co.uk/news/rss.xml
     statut_verification: confirme
     date_verification: 2026-10-22
-    notes: "URL cohérente dans plusieurs sources ; santé : https://feeds.bbci.co.uk/news/health/rss.xml"
+    notes: "URL cohérente dans plusieurs sources"
+
+  - nom: BBC News (health)
+    langue: en
+    pays: UK
+    type_source: audiovisuel_public
+    url: https://feeds.bbci.co.uk/news/health/rss.xml
+    statut_verification: a_tester
+    date_verification: null
+    notes: "Même schéma d'URL que BBC News (top stories). Ancienne adresse connue : http://newsrss.bbc.co.uk/rss/newsonline_world_edition/health/rss.xml (domaine historique, probablement obsolète)"
 
   - nom: The Guardian (international)
     langue: en
@@ -418,8 +429,8 @@ sources:
     type_source: presse_generaliste
     url: https://www.theguardian.com/international/rss
     statut_verification: confirme
-    date_verification: 2026-10-22
-    notes: "Listé dans un OPML public ; à valider"
+    date_verification: 2026-11-12
+    notes: "Trouvé dans un OPML public, vérifié avec check_feeds le 2026-11-12 (118 entrées)"
 
   - nom: Politico Europe (healthcare)
     langue: en
@@ -436,8 +447,8 @@ sources:
     type_source: presse_specialisee
     url: https://rss.politico.com/economy.xml
     statut_verification: confirme
-    date_verification: 2026-10-22
-    notes: "Testé avec feedparser sur machine utilisateur : 5 entrées, bozo False (peu d'entrées, à surveiller)"
+    date_verification: 2026-11-12
+    notes: "Peu d'entrées : 5 le 2026-10-22, 2 le 2026-11-12. À surveiller (flux peut-être en voie d'abandon)"
 
   - nom: Politico (energy)
     langue: en

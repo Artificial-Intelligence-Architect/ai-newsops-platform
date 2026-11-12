@@ -56,6 +56,17 @@ def test_langue_invalide_refusee():
         Source(**{**SOURCE_MINIMALE, "langue": "Français"})
 
 
+def test_espaces_parasites_supprimes():
+    s = Source(**{**SOURCE_MINIMALE, "nom": "BBC Health "})
+    assert s.nom == "BBC Health"
+
+
+def test_doublon_de_nom_refuse():
+    autre = {**SOURCE_MINIMALE, "url": "https://exemple.fr/autre.xml"}
+    with pytest.raises(ValidationError, match="Nom de source en double"):
+        Registre(meta={}, sources=[SOURCE_MINIMALE, autre])
+
+
 def test_doublon_d_url_refuse():
     with pytest.raises(ValidationError, match="URL en double"):
         Registre(
