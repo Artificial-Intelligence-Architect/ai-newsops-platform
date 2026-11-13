@@ -3,10 +3,12 @@
 #   confirme      : flux testé avec src/ingestion/check_feeds.py, au moins une entrée lue
 #   a_tester      : URL trouvée (source tierce, déduction) mais pas encore testée
 #   a_completer   : source identifiée, URL du flux pas encore trouvée
-#   en_echec      : URL testée, erreur HTTP ou 0 entrée ; à remplacer ou réessayer
+#   en_echec      : URL testée, erreur HTTP (hors 401/403) ou 0 entrée ; à remplacer ou réessayer
+#   bloque_robot  : l'éditeur refuse la collecte automatisée (HTTP 403, robots.txt) ;
+#                   refus respecté, la source n'est plus interrogée
 # date_verification : date de la dernière revue manuelle de l'entrée.
 # Le résultat détaillé du dernier contrôle est dans data/source_health.json (non versionné).
-# Dernière mise à jour : 2026-11-12
+# Dernière mise à jour : 2026-11-13
 
 meta:
   projet: traçabilité de la preuve pour la veille santé
@@ -15,6 +17,8 @@ meta:
     Ne pas redistribuer le texte intégral. Citer la source.
   politique_collecte: >
     Une requête par flux et par heure maximum, avec cache local et en-tête User-Agent identifiant.
+    Les refus explicites des éditeurs (HTTP 403, robots.txt) sont respectés : statut
+    bloque_robot, plus aucune requête, aucun contournement (pas d'usurpation de navigateur).
 
 sources:
 
@@ -64,7 +68,7 @@ sources:
     url: null
     statut_verification: a_completer
     date_verification: null
-    notes: "Page https://www.lesechos.fr/rss : extraire l'URL XML du flux général"
+    notes: "Page https://www.lesechos.fr/rss. Ne pas poursuivre : l'éditeur refuse la veille automatisée (voir Les Echos tech et médias)"
 
   # ---------- Belgique francophone ----------
   - nom: Le Soir (cible principale)
@@ -72,18 +76,18 @@ sources:
     pays: BE
     type_source: presse_generaliste
     url: https://www.lesoir.be/rss2/2/cible_principale
-    statut_verification: en_echec
+    statut_verification: bloque_robot
     date_verification: 2026-11-12
-    notes: "HTTP 403 (accès refusé au robot) le 2026-11-12. Listé actif sur Feeder ; les URL rss2/13 et feedburner sont cassées ou obsolètes"
+    notes: "Flux valide dans un navigateur (RSS 2.0, 10 entrées, 12/11/2026) mais HTTP 403 au robot. Le robots.txt de lesoir.be interdit explicitement les robots de veille presse (Kantar, Cision, Meltwater...) et d'IA : refus respecté"
 
   - nom: Le Soir (page des services RSS)
     langue: fr
     pays: BE
     type_source: presse_generaliste
     url: https://www.lesoir.be/services/rss
-    statut_verification: a_completer
+    statut_verification: bloque_robot
     date_verification: 2026-11-12
-    notes: "Page web (pas un flux) ; HTTP 403 au robot le 2026-11-12. Extraire à la main les URL XML utiles (santé, société)"
+    notes: "Page web listant les flux (pas un flux). HTTP 403 au robot : même politique que Le Soir (cible principale)"
 
   - nom: L'Echo (top stories)
     langue: fr
@@ -92,7 +96,16 @@ sources:
     url: https://www.lecho.be/rss/top_stories.xml
     statut_verification: en_echec
     date_verification: 2026-11-12
-    notes: "HTTP 404 le 2026-11-12 : URL obsolète. Remplacé par les flux thématiques ci-dessous"
+    notes: "HTTP 404 le 2026-11-12 : URL obsolète. Remplacé par L'Echo (actualité), ci-dessous"
+
+  - nom: L'Echo (actualité)
+    langue: fr
+    pays: BE
+    type_source: presse_economique
+    url: https://www.lecho.be/rss/actualite.xml
+    statut_verification: confirme
+    date_verification: 2026-11-13
+    notes: "Flux général trouvé à la main le 2026-11-13 en remplacement de top_stories.xml ; lisible dans un navigateur (10 entrées). Accès du robot confirmé avec check_feeds le 2026-11-13 (10 entrées)"
 
   - nom: L'Echo (entreprises tech et science)
     langue: fr
@@ -198,9 +211,9 @@ sources:
     pays: FR
     type_source: presse_economique
     url: https://services.lesechos.fr/rss/les-echos-tech-medias.xml
-    statut_verification: en_echec
+    statut_verification: bloque_robot
     date_verification: 2026-11-12
-    notes: "HTTP 403 (accès refusé au robot) le 2026-11-12. Les autres flux Les Echos (services.lesechos.fr/rss/...) restent à tester"
+    notes: "HTTP 403 au robot le 2026-11-12. services.lesechos.fr n'a pas de robots.txt (404), mais celui de www.lesechos.fr interdit explicitement les acteurs de la veille presse (Onclusive, Kantar, Meltwater...) et les lecteurs RSS (Feedspot, Inoreader, Netvibes) : refus respecté"
 
   - nom: La Libre Belgique
     langue: fr
@@ -419,9 +432,9 @@ sources:
     pays: UK
     type_source: audiovisuel_public
     url: https://feeds.bbci.co.uk/news/health/rss.xml
-    statut_verification: a_tester
-    date_verification: null
-    notes: "Même schéma d'URL que BBC News (top stories). Ancienne adresse connue : http://newsrss.bbc.co.uk/rss/newsonline_world_edition/health/rss.xml (domaine historique, probablement obsolète)"
+    statut_verification: confirme
+    date_verification: 2026-11-12
+    notes: "Vérifié avec check_feeds le 2026-11-12 (56 entrées). Pertinent pour le corpus santé. Ancienne adresse connue : http://newsrss.bbc.co.uk/rss/newsonline_world_edition/health/rss.xml (domaine historique, probablement obsolète)"
 
   - nom: The Guardian (international)
     langue: en

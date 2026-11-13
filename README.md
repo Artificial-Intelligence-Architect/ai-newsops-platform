@@ -38,6 +38,7 @@
 - [Technology Stack](#technology-stack)
 - [Accessibility and Compliance](#accessibility-and-compliance)
 - [Service Level Objectives (SLO) and Monitoring](#service-level-objectives-slo-and-monitoring)
+- [Live Press Ingestion (v2, in progress)](#live-press-ingestion-v2-in-progress)
 - [Known Limitations & Roadmap](#known-limitations--roadmap)
 
 ---
@@ -655,6 +656,36 @@ Alert rules are evaluated by the application monitoring layer (`src/monitoring/a
 - **Model quality** : macro F1 ≥ 0.65 on the held-out test set; candidate promotion
   blocked below this threshold
 - **Drift** : detection and alert within 30 minutes of a distribution change
+---
+## Live Press Ingestion (v2, in progress)
+
+Version 1 (tag [`v1-certification`](../../releases/tag/v1-certification)) trains and monitors on a static dataset (HuffPost, 2012–2022). Version 2 adds a **live, multilingual European press ingestion layer**, so that drift monitoring runs on real, current articles.
+
+### Source registry — `config/sources.yaml`
+
+A hand-curated, versioned registry of RSS feeds (French, Belgian, Dutch, German, Luxembourgish and English-language outlets). Each entry records language, country, source type, verification status, date and notes. The file is validated by Pydantic (`src/ingestion/sources.py`) on every test run: unknown status, malformed language/country codes, missing URLs and duplicates are rejected.
+
+| Status | Meaning |
+|---|---|
+| `confirme` | Tested with `check_feeds`, at least one entry read |
+| `a_tester` | URL known, not yet tested |
+| `a_completer` | Outlet identified, feed URL not yet found |
+| `en_echec` | Tested: dead URL (404…) or empty feed |
+| `bloque_robot` | Publisher refuses automated collection (HTTP 403, `robots.txt`) |
+
+### Feed health check
+
+```bash
+python -m src.ingestion.check_feeds        # writes data/source_health.json
+```
+
+Each feed is fetched once, sequentially, with a 1-second pause and an identifying User-Agent, then classified (`ok`, `vide`, `invalide`, `acces_refuse`, `erreur_http`, `injoignable`). The registry is never rewritten by code: results are reviewed and reported by hand, which keeps the file's comments and a human in the loop.
+
+### Collection policy
+
+- **Metadata only** (title, date, link, guid, standfirst); full text is never stored or redistributed.
+- **Publisher refusals are respected.** Some outlets (e.g. *Le Soir*, *Les Echos*) serve their feeds to browsers but answer HTTP 403 to robots, and their `robots.txt` explicitly excludes press-monitoring crawlers. These sources are marked `bloque_robot` and are no longer queried. No browser impersonation or other circumvention is used: professional press monitoring relies on licences with publishers, which this portfolio project does not have.
+
 ---
 ## Known Limitations & Roadmap
 

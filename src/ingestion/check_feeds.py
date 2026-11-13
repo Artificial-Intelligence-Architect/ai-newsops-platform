@@ -6,6 +6,9 @@ Usage :
 
 Le YAML n'est jamais réécrit : il reste édité à la main (et garde ses
 commentaires). Les résultats vont dans un fichier JSON séparé.
+
+Les sources au statut "bloque_robot" ne sont jamais interrogées :
+l'éditeur a refusé la collecte automatisée, on respecte ce refus.
 """
 
 from __future__ import annotations
@@ -34,9 +37,9 @@ PAUSE_ENTRE_REQUETES_S = 1.0  # politesse envers les serveurs
 class ResultatFlux:
     nom: str
     url: str
-    verdict: (
-        str  # ok | ok_avec_avertissement | vide | invalide | erreur_http | injoignable
-    )
+    # ok | ok_avec_avertissement | vide | invalide
+    # | acces_refuse | erreur_http | injoignable
+    verdict: str
     http_status: int | None
     nb_entrees: int
     bozo: bool
@@ -62,46 +65,41 @@ def evaluer(contenu: bytes) -> tuple[str, int, bool, str | None]:
 
 
 def verifier(source: Source, client: httpx.Client) -> ResultatFlux:
+    """Interroge un flux et classe le résultat."""
     debut = time.monotonic()
     maintenant = datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+    def resultat(verdict: str, **champs) -> ResultatFlux:
+        valeurs = {
+            "http_status": None,
+            "nb_entrees": 0,
+            "bozo": False,
+            "detail": None,
+        }
+        valeurs.update(champs)
+        return ResultatFlux(
+            nom=source.nom,
+            url=source.url,
+            verdict=verdict,
+            duree_ms=int((time.monotonic() - debut) * 1000),
+            teste_le=maintenant,
+            **valeurs,
+        )
+
     try:
         r = client.get(source.url)
     except httpx.HTTPError as e:
-        return ResultatFlux(
-            source.nom,
-            source.url,
-            "injoignable",
-            None,
-            0,
-            False,
-            f"{type(e).__name__}: {e}",
-            int((time.monotonic() - debut) * 1000),
-            maintenant,
-        )
-    duree = int((time.monotonic() - debut) * 1000)
+        return resultat("injoignable", detail=f"{type(e).__name__}: {e}")
+
+    if r.status_code in (401, 403):
+        # Refus explicite du serveur : à classer "bloque_robot" dans le registre.
+        return resultat("acces_refuse", http_status=r.status_code)
     if r.status_code >= 400:
-        return ResultatFlux(
-            source.nom,
-            source.url,
-            "erreur_http",
-            r.status_code,
-            0,
-            False,
-            None,
-            duree,
-            maintenant,
-        )
+        return resultat("erreur_http", http_status=r.status_code)
+
     verdict, nb, bozo, detail = evaluer(r.content)
-    return ResultatFlux(
-        source.nom,
-        source.url,
-        verdict,
-        r.status_code,
-        nb,
-        bozo,
-        detail,
-        duree,
-        maintenant,
+    return resultat(
+        verdict, http_status=r.status_code, nb_entrees=nb, bozo=bozo, detail=detail
     )
 
 
@@ -112,9 +110,15 @@ def main() -> None:
     args = parser.parse_args()
 
     registre = charger_registre(args.config)
-    a_tester = [s for s in registre.sources if s.url is not None]
+    a_tester = [
+        s
+        for s in registre.sources
+        if s.url is not None and s.statut_verification != "bloque_robot"
+    ]
+    nb_bloques = sum(s.statut_verification == "bloque_robot" for s in registre.sources)
     print(
-        f"{len(a_tester)} flux à tester ({len(registre.sources)} sources au registre)\n"
+        f"{len(a_tester)} flux à tester ({len(registre.sources)} sources au registre, "
+        f"{nb_bloques} ignorées car l'éditeur refuse les robots)\n"
     )
 
     resultats: list[ResultatFlux] = []

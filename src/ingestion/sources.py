@@ -13,7 +13,11 @@ from typing import Literal
 import yaml
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
-StatutVerification = Literal["confirme", "a_tester", "a_completer", "en_echec"]
+StatutVerification = Literal[
+    "confirme", "a_tester", "a_completer", "en_echec", "bloque_robot"
+]
+# bloque_robot : l'éditeur refuse la collecte automatisée (HTTP 403, robots.txt).
+# On respecte ce refus : ces sources ne sont plus jamais interrogées.
 
 
 class Source(BaseModel):

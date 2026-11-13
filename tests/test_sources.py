@@ -1,9 +1,10 @@
 """Tests du registre des sources et de l'évaluation des flux (sans réseau)."""
 
+import httpx
 import pytest
 from pydantic import ValidationError
 
-from src.ingestion.check_feeds import evaluer
+from src.ingestion.check_feeds import evaluer, verifier
 from src.ingestion.sources import Registre, Source, charger_registre
 
 SOURCE_MINIMALE = {
@@ -86,3 +87,37 @@ def test_page_html_au_lieu_d_un_flux():
     verdict, nb, _, _ = evaluer(b"<html><body>Page introuvable</body></html>")
     assert verdict in ("vide", "invalide")
     assert nb == 0
+
+
+# --- Interrogation d'un flux, avec un faux serveur (httpx.MockTransport) ----
+
+
+def _client_qui_repond(status: int, contenu: bytes = b"") -> httpx.Client:
+    """Client httpx branché sur un faux serveur : aucun accès réseau."""
+    return httpx.Client(
+        transport=httpx.MockTransport(
+            lambda req: httpx.Response(status, content=contenu)
+        )
+    )
+
+
+def test_verifier_flux_ok():
+    with _client_qui_repond(200, FLUX_VALIDE) as client:
+        res = verifier(Source(**SOURCE_MINIMALE), client)
+    assert (res.verdict, res.nb_entrees, res.http_status) == ("ok", 2, 200)
+
+
+def test_verifier_403_classe_acces_refuse():
+    with _client_qui_repond(403) as client:
+        res = verifier(Source(**SOURCE_MINIMALE), client)
+    assert (res.verdict, res.http_status) == ("acces_refuse", 403)
+
+
+def test_verifier_404_classe_erreur_http():
+    with _client_qui_repond(404) as client:
+        res = verifier(Source(**SOURCE_MINIMALE), client)
+    assert (res.verdict, res.http_status) == ("erreur_http", 404)
+
+
+def test_statut_bloque_robot_accepte():
+    Source(**{**SOURCE_MINIMALE, "statut_verification": "bloque_robot"})
