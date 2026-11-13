@@ -1,0 +1,510 @@
+# Inventaire des flux RSS pour le projet de traçabilité de la veille santé
+# Statuts :
+#   confirme      : flux testé avec src/ingestion/check_feeds.py, au moins une entrée lue
+#   a_tester      : URL trouvée (source tierce, déduction) mais pas encore testée
+#   a_completer   : source identifiée, URL du flux pas encore trouvée
+#   en_echec      : URL testée, erreur HTTP (hors 401/403) ou 0 entrée ; à remplacer ou réessayer
+#   bloque_robot  : l'éditeur refuse la collecte automatisée (HTTP 403, robots.txt) ;
+#                   refus respecté, la source n'est plus interrogée
+# date_verification : date de la dernière revue manuelle de l'entrée.
+# Le résultat détaillé du dernier contrôle est dans data/source_health.json (non versionné).
+# Dernière mise à jour : 2026-11-13
+
+meta:
+  projet: traçabilité de la preuve pour la veille santé
+  regle_contenu: >
+    Conserver uniquement les métadonnées (titre, date, lien, guid, chapô).
+    Ne pas redistribuer le texte intégral. Citer la source.
+  politique_collecte: >
+    Une requête par flux et par heure maximum, avec cache local et en-tête User-Agent identifiant.
+    Les refus explicites des éditeurs (HTTP 403, robots.txt) sont respectés : statut
+    bloque_robot, plus aucune requête, aucun contournement (pas d'usurpation de navigateur).
+
+sources:
+
+  # ---------- Français ----------
+  - nom: Le Monde (une)
+    langue: fr
+    pays: FR
+    type_source: presse_generaliste
+    url: https://www.lemonde.fr/rss/une.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    champs_disponibles: [title, pubDate, description, guid, link, media:content]
+    contraintes_licence: "balise copyright vide ; métadonnées uniquement"
+    notes: "Mélange articles et pages /live/ : à distinguer dans le modèle"
+
+  - nom: Le Monde (version anglaise, thématiques)
+    langue: en
+    pays: FR
+    type_source: presse_generaliste
+    url: https://www.lemonde.fr/en/rss/une.xml
+    statut_verification: confirme
+    date_verification: 2026-11-12
+    notes: "Trouvé via feedspot, vérifié avec check_feeds le 2026-11-12 (14 entrées). Utile pour comparer une traduction anglaise"
+
+  - nom: Libération (rss-all)
+    langue: fr
+    pays: FR
+    type_source: presse_generaliste
+    url: https://www.liberation.fr/arc/outboundfeeds/rss-all/?outputType=xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 50 entrées, bozo False"
+
+  - nom: Le Figaro (flux général)
+    langue: fr
+    pays: FR
+    type_source: presse_generaliste
+    url: null
+    statut_verification: a_completer
+    date_verification: null
+    notes: "Page https://www.lefigaro.fr/tag/rss : extraire l'URL XML du flux général"
+
+  - nom: Les Echos (flux général)
+    langue: fr
+    pays: FR
+    type_source: presse_economique
+    url: null
+    statut_verification: a_completer
+    date_verification: null
+    notes: "Page https://www.lesechos.fr/rss. Ne pas poursuivre : l'éditeur refuse la veille automatisée (voir Les Echos tech et médias)"
+
+  # ---------- Belgique francophone ----------
+  - nom: Le Soir (cible principale)
+    langue: fr
+    pays: BE
+    type_source: presse_generaliste
+    url: https://www.lesoir.be/rss2/2/cible_principale
+    statut_verification: bloque_robot
+    date_verification: 2026-11-12
+    notes: "Flux valide dans un navigateur (RSS 2.0, 10 entrées, 12/11/2026) mais HTTP 403 au robot. Le robots.txt de lesoir.be interdit explicitement les robots de veille presse (Kantar, Cision, Meltwater...) et d'IA : refus respecté"
+
+  - nom: Le Soir (page des services RSS)
+    langue: fr
+    pays: BE
+    type_source: presse_generaliste
+    url: https://www.lesoir.be/services/rss
+    statut_verification: bloque_robot
+    date_verification: 2026-11-12
+    notes: "Page web listant les flux (pas un flux). HTTP 403 au robot : même politique que Le Soir (cible principale)"
+
+  - nom: L'Echo (top stories)
+    langue: fr
+    pays: BE
+    type_source: presse_economique
+    url: https://www.lecho.be/rss/top_stories.xml
+    statut_verification: en_echec
+    date_verification: 2026-11-12
+    notes: "HTTP 404 le 2026-11-12 : URL obsolète. Remplacé par L'Echo (actualité), ci-dessous"
+
+  - nom: L'Echo (actualité)
+    langue: fr
+    pays: BE
+    type_source: presse_economique
+    url: https://www.lecho.be/rss/actualite.xml
+    statut_verification: confirme
+    date_verification: 2026-11-13
+    notes: "Flux général trouvé à la main le 2026-11-13 en remplacement de top_stories.xml ; lisible dans un navigateur (10 entrées). Accès du robot confirmé avec check_feeds le 2026-11-13 (10 entrées)"
+
+  - nom: L'Echo (entreprises tech et science)
+    langue: fr
+    pays: BE
+    type_source: presse_economique
+    url: https://www.lecho.be/rss/entreprises_tech_science.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 10 entrées, bozo False"
+
+  - nom: L'Echo (entreprises banques)
+    langue: fr
+    pays: BE
+    type_source: presse_economique
+    url: https://www.lecho.be/rss/entreprises_banques.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 10 entrées, bozo False. Pertinent pour l'assurance (banque-assurance)"
+
+  - nom: L'Echo (politique Belgique)
+    langue: fr
+    pays: BE
+    type_source: presse_economique
+    url: https://www.lecho.be/rss/politique_belgique.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 10 entrées, bozo False"
+
+  - nom: L'Echo (politique Bruxelles)
+    langue: fr
+    pays: BE
+    type_source: presse_economique
+    url: https://www.lecho.be/rss/politique_belgique_bruxelles.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 10 entrées, bozo False"
+
+  - nom: L'Echo (politique Wallonie)
+    langue: fr
+    pays: BE
+    type_source: presse_economique
+    url: https://www.lecho.be/rss/politique_belgique_wallonie.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 10 entrées, bozo False"
+
+  - nom: L'Echo (politique Flandre)
+    langue: fr
+    pays: BE
+    type_source: presse_economique
+    url: https://www.lecho.be/rss/politique_belgique_flandre.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 10 entrées, bozo False"
+
+  - nom: L'Echo (Europe)
+    langue: fr
+    pays: BE
+    type_source: presse_economique
+    url: https://www.lecho.be/rss/europe.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 10 entrées, bozo False"
+
+  - nom: L'Echo (entreprises construction)
+    langue: fr
+    pays: BE
+    type_source: presse_economique
+    url: https://www.lecho.be/rss/entreprises_construction.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 10 entrées, bozo False"
+
+  - nom: L'Echo (entreprises énergie)
+    langue: fr
+    pays: BE
+    type_source: presse_economique
+    url: https://www.lecho.be/rss/entreprises_energie.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 10 entrées, bozo False"
+
+  - nom: L'Echo (entreprises pharma et biotechnologie)
+    langue: fr
+    pays: BE
+    type_source: presse_economique
+    url: https://www.lecho.be/rss/entreprises_pharma_biotechnologie.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 10 entrées, bozo False. Pertinent pour le corpus santé"
+
+  - nom: L'Echo (entreprises services)
+    langue: fr
+    pays: BE
+    type_source: presse_economique
+    url: https://www.lecho.be/rss/entreprises_services.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 10 entrées, bozo False. Pertinent pour l'assurance"
+
+  - nom: Les Echos (tech et médias)
+    langue: fr
+    pays: FR
+    type_source: presse_economique
+    url: https://services.lesechos.fr/rss/les-echos-tech-medias.xml
+    statut_verification: bloque_robot
+    date_verification: 2026-11-12
+    notes: "HTTP 403 au robot le 2026-11-12. services.lesechos.fr n'a pas de robots.txt (404), mais celui de www.lesechos.fr interdit explicitement les acteurs de la veille presse (Onclusive, Kantar, Meltwater...) et les lecteurs RSS (Feedspot, Inoreader, Netvibes) : refus respecté"
+
+  - nom: La Libre Belgique
+    langue: fr
+    pays: BE
+    type_source: presse_generaliste
+    url: https://www.lalibre.be/arc/outboundfeeds/rss/?outputType=xml
+    statut_verification: confirme
+    date_verification: 2026-11-12
+    notes: "Vérifié avec check_feeds le 2026-11-12 (100 entrées). Repéré via Feeder (~80 publications/jour). Sections disponibles : politique-belge, economie, international, europe, judiciaire, bruxelles"
+
+  - nom: RTBF (Flux RSS)
+    langue: fr
+    pays: BE
+    type_source: audiovisuel_public
+    url: null
+    statut_verification: a_completer
+    date_verification: null
+    notes: "Page Flux RSS présente sur rtbf.be ; URL à extraire"
+
+  # ---------- Néerlandais ----------
+  - nom: NOS Nieuws Algemeen
+    langue: nl
+    pays: NL
+    type_source: audiovisuel_public
+    url: https://feeds.nos.nl/nosnieuwsalgemeen
+    statut_verification: confirme
+    date_verification: 2026-11-12
+    notes: "URL déduite du pattern feeds.nos.nl, vérifiée avec check_feeds le 2026-11-12 (20 entrées)"
+
+  - nom: NOS Nieuws Politiek
+    langue: nl
+    pays: NL
+    type_source: audiovisuel_public
+    url: https://feeds.nos.nl/nosnieuwspolitiek
+    statut_verification: confirme
+    date_verification: 2026-10-22
+
+  - nom: HLN (Het Laatste Nieuws)
+    langue: nl
+    pays: BE
+    type_source: presse_generaliste
+    url: https://www.hln.be/home/rss.xml
+    statut_verification: confirme
+    date_verification: 2026-11-12
+    notes: "Trouvé via feedspot, vérifié avec check_feeds le 2026-11-12 (30 entrées)"
+
+  # ---------- De Tijd (néerlandais, presse économique belge) ----------
+  - nom: De Tijd (politiek België)
+    langue: nl
+    pays: BE
+    type_source: presse_economique
+    url: https://www.tijd.be/rss/politiek_belgie.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 10 entrées, bozo False"
+
+  - nom: De Tijd (politiek Brussel)
+    langue: nl
+    pays: BE
+    type_source: presse_economique
+    url: https://www.tijd.be/rss/politiek_belgie_brussel.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 10 entrées, bozo False"
+
+  - nom: De Tijd (politiek Europa)
+    langue: nl
+    pays: BE
+    type_source: presse_economique
+    url: https://www.tijd.be/rss/politiek_europa.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 10 entrées, bozo False"
+
+  - nom: De Tijd (politiek internationaal)
+    langue: nl
+    pays: BE
+    type_source: presse_economique
+    url: https://www.tijd.be/rss/politiek_internationaal.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 10 entrées, bozo False"
+
+  - nom: De Tijd (ondernemen banken)
+    langue: nl
+    pays: BE
+    type_source: presse_economique
+    url: https://www.tijd.be/rss/ondernemen_banken.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 10 entrées, bozo False. Pertinent pour le corpus assurance (banque-assurance)"
+
+  - nom: De Tijd (ondernemen bouw)
+    langue: nl
+    pays: BE
+    type_source: presse_economique
+    url: https://www.tijd.be/rss/ondernemen_bouw.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 10 entrées, bozo False"
+
+  - nom: De Tijd (ondernemen diensten en verzekeringen)
+    langue: nl
+    pays: BE
+    type_source: presse_economique
+    url: https://www.tijd.be/rss/ondernemen_diensten_en_verzekeringen.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 10 entrées, bozo False. URL corrigée (préfixe en double dans la source initiale). Pertinent pour l'assurance"
+
+  - nom: De Tijd (ondernemen ICT)
+    langue: nl
+    pays: BE
+    type_source: presse_economique
+    url: https://www.tijd.be/rss/ondernemen_ict.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 10 entrées, bozo False"
+
+  - nom: De Tijd (ondernemen media en marketing)
+    langue: nl
+    pays: BE
+    type_source: presse_economique
+    url: https://www.tijd.be/rss/ondernemen_media_en_marketing.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 10 entrées, bozo False"
+
+  # ---------- Allemand ----------
+  - nom: tagesschau (alle Meldungen)
+    langue: de
+    pays: DE
+    type_source: audiovisuel_public
+    url: https://www.tagesschau.de/infoservices/alle-meldungen-100~rss2.xml
+    statut_verification: confirme
+    date_verification: 2026-11-12
+    notes: "Repéré via Feeder, vérifié avec check_feeds le 2026-11-12 (40 entrées)"
+
+  - nom: tagesschau Gesundheit und Medizin
+    langue: de
+    pays: DE
+    type_source: audiovisuel_public
+    url: https://www.tagesschau.de/wissen/gesundheit/index~rss2.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Pertinent pour le corpus santé"
+
+  - nom: taz (Hauptfeed)
+    langue: de
+    pays: DE
+    type_source: presse_generaliste
+    url: https://taz.de/!p4608;rss/
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    champs_disponibles: [title, description (HTML), pubDate, guid, link, dc:creator, media:content]
+    contraintes_licence: "copyright TAZ Verlags- und Vertriebs GmbH ; métadonnées et citation courte"
+    notes: "RSS 2.0 valide, ttl 30 min. Nettoyer HTML et traits d'union conditionnels (U+00AD)"
+
+  - nom: Zeit Online (newsfeed)
+    langue: de
+    pays: DE
+    type_source: presse_generaliste
+    url: https://newsfeed.zeit.de/index
+    statut_verification: confirme
+    date_verification: 2026-10-22
+
+  - nom: Spiegel (Schlagzeilen)
+    langue: de
+    pays: DE
+    type_source: presse_generaliste
+    url: http://www.spiegel.de/schlagzeilen/rss/0,5291,676,00.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 20 entrées, bozo False. Flux en http ; https à tester si besoin"
+
+  # ---------- Luxembourg ----------
+  - nom: Le Quotidien
+    langue: fr
+    pays: LU
+    type_source: presse_generaliste
+    url: https://lequotidien.lu/feed
+    statut_verification: en_echec
+    date_verification: 2026-11-12
+    notes: "HTTP 404 le 2026-11-12 (URL trouvée via feedspot). La page d'accueil https://lequotidien.lu/ est une page web, pas un flux : chercher le lien RSS dans son code source"
+
+  - nom: Luxemburger Wort
+    langue: de
+    pays: LU
+    type_source: presse_generaliste
+    url: https://www.wort.lu/rss/
+    statut_verification: confirme
+    date_verification: 2026-11-12
+    notes: "L'URL notée est bien un flux : vérifiée avec check_feeds le 2026-11-12 (50 entrées)"
+
+  - nom: Statistiques Luxembourg (STATEC, actualités)
+    langue: fr
+    pays: LU
+    type_source: statistiques_officielles
+    url: null
+    statut_verification: a_completer
+    date_verification: null
+    notes: "Page RSS sur statistiques.public.lu ; très intéressant pour croiser des chiffres officiels"
+
+  # ---------- Anglais ----------
+  - nom: BBC News (top stories)
+    langue: en
+    pays: UK
+    type_source: audiovisuel_public
+    url: https://feeds.bbci.co.uk/news/rss.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "URL cohérente dans plusieurs sources"
+
+  - nom: BBC News (health)
+    langue: en
+    pays: UK
+    type_source: audiovisuel_public
+    url: https://feeds.bbci.co.uk/news/health/rss.xml
+    statut_verification: confirme
+    date_verification: 2026-11-12
+    notes: "Vérifié avec check_feeds le 2026-11-12 (56 entrées). Pertinent pour le corpus santé. Ancienne adresse connue : http://newsrss.bbc.co.uk/rss/newsonline_world_edition/health/rss.xml (domaine historique, probablement obsolète)"
+
+  - nom: The Guardian (international)
+    langue: en
+    pays: UK
+    type_source: presse_generaliste
+    url: https://www.theguardian.com/international/rss
+    statut_verification: confirme
+    date_verification: 2026-11-12
+    notes: "Trouvé dans un OPML public, vérifié avec check_feeds le 2026-11-12 (118 entrées)"
+
+  - nom: Politico Europe (healthcare)
+    langue: en
+    pays: BE
+    type_source: presse_specialisee
+    url: https://rss.politico.com/healthcare.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 30 entrées, bozo False. Vérifier la licence avant réutilisation"
+
+  - nom: Politico (economy)
+    langue: en
+    pays: BE
+    type_source: presse_specialisee
+    url: https://rss.politico.com/economy.xml
+    statut_verification: confirme
+    date_verification: 2026-11-12
+    notes: "Peu d'entrées : 5 le 2026-10-22, 2 le 2026-11-12. À surveiller (flux peut-être en voie d'abandon)"
+
+  - nom: Politico (energy)
+    langue: en
+    pays: BE
+    type_source: presse_specialisee
+    url: http://rss.politico.com/energy.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 30 entrées, bozo False"
+
+  - nom: Politico (defense)
+    langue: en
+    pays: BE
+    type_source: presse_specialisee
+    url: http://rss.politico.com/defense.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 30 entrées, bozo False"
+
+  - nom: Politico (politics-news)
+    langue: en
+    pays: BE
+    type_source: presse_specialisee
+    url: https://rss.politico.com/politics-news.xml
+    statut_verification: confirme
+    date_verification: 2026-10-22
+    notes: "Testé avec feedparser sur machine utilisateur : 30 entrées, bozo False"
+
+  - nom: Brussels Times
+    langue: en
+    pays: BE
+    type_source: presse_generaliste
+    url: null
+    statut_verification: a_completer
+    date_verification: null
+    notes: "Presse anglophone basée en Belgique ; URL à extraire de brusselstimes.com"
+
+  # ---------- Agrégateurs (référence, non ingérés comme sources primaires) ----------
+  - nom: Eufeeds (EJC)
+    langue: multi
+    pays: EU
+    type_source: annuaire
+    url: null
+    statut_verification: a_completer
+    date_verification: null
+    notes: "Annuaire de presse européenne ; ne fournit pas de flux agrégé exploitable selon sa propre description"

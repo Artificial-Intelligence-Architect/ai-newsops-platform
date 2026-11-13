@@ -16,6 +16,10 @@ python-dotenv>=0.19.0
 pyyaml>=6.0
 requests>=2.31.0
 
+# Ingestion (flux RSS)
+feedparser>=6.0
+httpx>=0.27
+
 # ML Monitoring & MLOps
 prometheus-client>=0.17.0
 prometheus-fastapi-instrumentator
